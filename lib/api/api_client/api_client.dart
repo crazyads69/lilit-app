@@ -94,16 +94,13 @@ class ApiClient {
   }) async {
     final cacheKey = '$url${params?.toString() ?? ''}';
 
-    // Check for cached data
     if (_cache.containsKey(cacheKey)) {
       final cachedValue = _cache[cacheKey]!.value;
       if (cachedValue != null) {
-        // Trigger a background refresh while returning the cached data immediately
         _refreshCache<T>(url, params, cacheKey, cacheDuration, parser);
         return cachedValue as T;
       }
     }
-    // No cached data; set isLoading to true and perform a full fetch
     return _fetchAndCache<T>(url, params, cacheKey, cacheDuration, parser);
   }
 
@@ -113,7 +110,6 @@ class ApiClient {
     String cacheKey,
     Duration cacheDuration,
     T Function(dynamic)? parser, {
-    // Optional parameter to differentiate a refresh call from an initial load
     bool refresh = false,
   }) async {
     if (refresh) {
@@ -131,13 +127,10 @@ class ApiClient {
       final data =
           parser != null ? parser(apiResponse.data) : apiResponse.data as T;
 
-      // Cache the new data
       _cache[cacheKey] = Observable(data);
       Future.delayed(cacheDuration, () => _cache.remove(cacheKey));
 
       return data;
-    } catch (e) {
-      throw Exception('Failed to fetch data: $e');
     } finally {
       if (refresh) {
         isRefreshing.value = false;
@@ -155,15 +148,12 @@ class ApiClient {
     T Function(dynamic)? parser,
   ) async {
     try {
-      // Call _fetchAndCache with refresh flag set to true so that isRefreshing is used
       final newData = await _fetchAndCache<T>(
           url, params, cacheKey, cacheDuration, parser,
           refresh: true);
       _cache[cacheKey]!.value = newData;
     } catch (e) {
-      // If the refresh fails, invalidate the cache to prevent further attempts
       _cache.remove(cacheKey);
-      throw Exception('Failed to refresh cache: $e');
     }
   }
 
@@ -200,8 +190,6 @@ class ApiClient {
       );
 
       return parser != null ? parser(apiResponse.data) : apiResponse.data as T;
-    } catch (e) {
-      throw Exception('Failed to perform mutation: $e');
     } finally {
       isLoading.value = false;
     }
