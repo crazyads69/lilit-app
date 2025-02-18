@@ -4,6 +4,7 @@ import "package:get_it/get_it.dart";
 import "package:dio/dio.dart";
 import "package:lilit/api/api_client/api_client.dart";
 import "package:lilit/stores/auth_store/auth_store.dart";
+import "package:lilit/stores/message_store/message_store.dart";
 import "package:lilit/utils/device_id/device_id.dart";
 
 final getIt = GetIt.instance;
@@ -28,10 +29,14 @@ void setupServiceLocator() {
   // Register ApiClient
   getIt.registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()));
 
+  // Register MessageStore
+  getIt.registerLazySingleton<MessageStore>(() => MessageStore());
+
   // Register AuthStore
   getIt.registerLazySingleton<AuthStore>(() => AuthStore(
         getIt<ApiClient>(),
         getIt<DeviceIdGenerator>(),
         getIt<FlutterSecureStorage>(),
+        getIt<MessageStore>(),
       ));
 }

@@ -72,6 +72,16 @@ mixin _$AuthStore on _AuthStore, Store {
     });
   }
 
+  late final _$registerAsyncAction =
+      AsyncAction('_AuthStore.register', context: context);
+
+  @override
+  Future<void> register(String email, String password, String firstName,
+      String lastName, String dateOfBirth) {
+    return _$registerAsyncAction.run(() =>
+        super.register(email, password, firstName, lastName, dateOfBirth));
+  }
+
   late final _$loginAsyncAction =
       AsyncAction('_AuthStore.login', context: context);
 
@@ -88,6 +98,14 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$setNewTokenAsyncAction.run(() => super.setNewToken(newToken));
   }
 
+  late final _$logOutAsyncAction =
+      AsyncAction('_AuthStore.logOut', context: context);
+
+  @override
+  Future<void> logOut() {
+    return _$logOutAsyncAction.run(() => super.logOut());
+  }
+
   late final _$_initializeDeviceIdAsyncAction =
       AsyncAction('_AuthStore._initializeDeviceId', context: context);
 
@@ -95,20 +113,6 @@ mixin _$AuthStore on _AuthStore, Store {
   Future<void> _initializeDeviceId() {
     return _$_initializeDeviceIdAsyncAction
         .run(() => super._initializeDeviceId());
-  }
-
-  late final _$_AuthStoreActionController =
-      ActionController(name: '_AuthStore', context: context);
-
-  @override
-  void logOut() {
-    final _$actionInfo =
-        _$_AuthStoreActionController.startAction(name: '_AuthStore.logOut');
-    try {
-      return super.logOut();
-    } finally {
-      _$_AuthStoreActionController.endAction(_$actionInfo);
-    }
   }
 
   @override
