@@ -19,7 +19,6 @@ abstract class _AuthStore with Store {
   final DeviceIdGenerator _deviceIdGenerator;
   final FlutterSecureStorage _secureStorage;
   final MessageStore _messageStore;
-  final String _deviceIdKey = 'DEVICE_ID';
   final String _accessTokenKey = "ACCESS_TOKEN";
   final String _refreshTokenKey = "REFRESH_TOKEN";
 
@@ -132,6 +131,9 @@ abstract class _AuthStore with Store {
   Future<void> setNewToken(RefreshToken newToken) async {
     accessToken = newToken.accessToken;
     refreshToken = newToken.refreshToken;
+
+    await _secureStorage.write(key: _accessTokenKey, value: accessToken);
+    await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
   }
 
   @action
