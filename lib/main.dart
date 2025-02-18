@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lilit/app_theme.dart';
 import 'package:lilit/di/service_locator.dart';
+import 'package:lilit/screens/login/login_screen.dart';
+import 'package:lilit/stores/auth_store/auth_store.dart';
+import 'package:lilit/stores/message_store/message_store.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<AuthStore>(create: (_) => getIt<AuthStore>()),
+        Provider<MessageStore>(create: (_) => getIt<MessageStore>()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: LoginScreen(),
     );
   }
 }

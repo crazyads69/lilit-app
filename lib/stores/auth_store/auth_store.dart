@@ -44,7 +44,7 @@ abstract class _AuthStore with Store {
       String lastName, String dateOfBirth) async {
     try {
       final response = await _apiClient.mutate<Map<String, dynamic>>(
-        '/api/v1/auth/register',
+        '/v1/auth/register',
         {
           'email': email,
           'password': password,
@@ -91,12 +91,15 @@ abstract class _AuthStore with Store {
   Future<void> login(String email, String password) async {
     try {
       final response = await _apiClient.mutate<Map<String, dynamic>>(
-        '/api/v1/auth/login',
+        '/v1/auth/login',
         {'email': email, 'password': password, 'device_id': deviceId},
         parser: (data) => data as Map<String, dynamic>,
       );
 
+      print('Login response: $response'); // Add this line
+
       user = AuthData.fromJson(response['user']);
+
       accessToken = response['access_token'];
       refreshToken = response['refresh_token'];
       deviceId = response['device_id'];

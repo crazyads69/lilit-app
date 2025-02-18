@@ -10,6 +10,7 @@ import "package:lilit/utils/device_id/device_id.dart";
 final getIt = GetIt.instance;
 
 void setupServiceLocator() {
+  // Register AppRouter
   // Register DeviceInfoPlugin
   getIt.registerLazySingleton<DeviceInfoPlugin>(() => DeviceInfoPlugin());
 
