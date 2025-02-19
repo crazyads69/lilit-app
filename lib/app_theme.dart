@@ -568,13 +568,20 @@ class AppTheme {
 
   static CardTheme _buildCardTheme({required bool isLight}) {
     return CardTheme(
-      color: AppColors.neutral100,
+      color: isLight ? Colors.white : AppColors.neutralDark,
+      shadowColor: isLight
+          ? Colors.black.withValues(alpha: 26) // 0.1 * 255 ≈ 26
+          : Colors.black.withValues(alpha: 77), // 0.3 * 255 ≈ 77
+      elevation: AppConstants.cardElevation,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
-        side: BorderSide(color: AppColors.neutral300),
+        side: BorderSide(
+          color: isLight ? AppColors.neutral300 : AppColors.neutral600,
+          width: 1,
+        ),
       ),
-      elevation: AppConstants.cardElevation,
       clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     );
   }
 

@@ -4,7 +4,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:lilit/app_theme.dart';
 import 'package:lilit/di/service_locator.dart';
 import 'package:lilit/router/app_router.dart';
-import 'package:lilit/stores/auth_store/auth_store.dart';
 import 'package:lilit/stores/message_store/message_store.dart';
 
 void main() async {
