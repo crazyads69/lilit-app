@@ -9,6 +9,24 @@ part of 'auth_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AuthStore on _AuthStore, Store {
+  Computed<ApiState<ApiResponse<LoginResponse>>>? _$loginStateComputed;
+
+  @override
+  ApiState<ApiResponse<LoginResponse>> get loginState =>
+      (_$loginStateComputed ??= Computed<ApiState<ApiResponse<LoginResponse>>>(
+              () => super.loginState,
+              name: '_AuthStore.loginState'))
+          .value;
+  Computed<ApiState<ApiResponse<LoginResponse>>>? _$registerStateComputed;
+
+  @override
+  ApiState<ApiResponse<LoginResponse>> get registerState =>
+      (_$registerStateComputed ??=
+              Computed<ApiState<ApiResponse<LoginResponse>>>(
+                  () => super.registerState,
+                  name: '_AuthStore.registerState'))
+          .value;
+
   late final _$deviceIdAtom =
       Atom(name: '_AuthStore.deviceId', context: context);
 
@@ -72,30 +90,20 @@ mixin _$AuthStore on _AuthStore, Store {
     });
   }
 
-  late final _$registerAsyncAction =
-      AsyncAction('_AuthStore.register', context: context);
-
-  @override
-  Future<void> register(String email, String password, String firstName,
-      String lastName, String dateOfBirth) {
-    return _$registerAsyncAction.run(() =>
-        super.register(email, password, firstName, lastName, dateOfBirth));
-  }
-
-  late final _$loginAsyncAction =
-      AsyncAction('_AuthStore.login', context: context);
-
-  @override
-  Future<void> login(String email, String password) {
-    return _$loginAsyncAction.run(() => super.login(email, password));
-  }
-
   late final _$setNewTokenAsyncAction =
       AsyncAction('_AuthStore.setNewToken', context: context);
 
   @override
   Future<void> setNewToken(RefreshToken newToken) {
     return _$setNewTokenAsyncAction.run(() => super.setNewToken(newToken));
+  }
+
+  late final _$loginAsyncAction =
+      AsyncAction('_AuthStore.login', context: context);
+
+  @override
+  Future<void> login(LoginInput input) {
+    return _$loginAsyncAction.run(() => super.login(input));
   }
 
   late final _$logOutAsyncAction =
@@ -121,7 +129,9 @@ mixin _$AuthStore on _AuthStore, Store {
 deviceId: ${deviceId},
 user: ${user},
 accessToken: ${accessToken},
-refreshToken: ${refreshToken}
+refreshToken: ${refreshToken},
+loginState: ${loginState},
+registerState: ${registerState}
     ''';
   }
 }

@@ -1,8 +1,11 @@
 import "package:device_info_plus/device_info_plus.dart";
+import "package:flutter_dotenv/flutter_dotenv.dart";
 import "package:flutter_secure_storage/flutter_secure_storage.dart";
 import "package:get_it/get_it.dart";
 import "package:dio/dio.dart";
 import "package:lilit/api/api_client/api_client.dart";
+import "package:lilit/api/api_service/api_service.dart";
+import "package:lilit/api/auth_api/auth_api.dart";
 import "package:lilit/stores/auth_store/auth_store.dart";
 import "package:lilit/stores/message_store/message_store.dart";
 import "package:lilit/utils/device_id/device_id.dart";
@@ -27,17 +30,38 @@ void setupServiceLocator() {
   // Register Dio
   getIt.registerLazySingleton<Dio>(() => Dio());
 
-  // Register ApiClient
-  getIt.registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()));
-
   // Register MessageStore
   getIt.registerLazySingleton<MessageStore>(() => MessageStore());
 
+  // Register ApiService
+  getIt.registerLazySingleton<ApiService>(() => ApiService());
+
+  // Register ApiClient
+  getIt.registerLazySingleton<ApiClient>(() => getIt<ApiService>().client);
+
+  // Register AuthApi
+  getIt.registerLazySingleton<AuthApi>(() {
+    final authApi = AuthApi(getIt<ApiClient>());
+    authApi.initialize();
+    return authApi;
+  });
+
   // Register AuthStore
   getIt.registerLazySingleton<AuthStore>(() => AuthStore(
-        getIt<ApiClient>(),
+        getIt<AuthApi>(),
         getIt<DeviceIdGenerator>(),
         getIt<FlutterSecureStorage>(),
         getIt<MessageStore>(),
       ));
+
+  // Initialize ApiService
+  getIt<ApiService>().initialize(
+    baseUrl: dotenv.env['BASE_API_URL']!,
+    getAccessToken: () => getIt<AuthStore>().accessToken ?? '',
+    getDeviceId: () => getIt<AuthStore>().deviceId ?? '',
+    getRefreshToken: () => getIt<AuthStore>().refreshToken ?? '',
+    setNewToken: (token) => getIt<AuthStore>().setNewToken(token),
+    logOut: () => getIt<AuthStore>().logOut(),
+    messageStore: getIt<MessageStore>(),
+  );
 }

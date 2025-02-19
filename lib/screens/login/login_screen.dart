@@ -1,10 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:lilit/di/service_locator.dart';
+import 'package:lilit/schemas/auth_input/auth_input.dart';
 import 'package:lilit/stores/auth_store/auth_store.dart';
-import 'package:lilit/stores/message_store/message_store.dart';
-import 'package:lilit/widgets/accent_button/accent_button.dart';
 import 'package:provider/provider.dart';
 
 @RoutePage()
@@ -38,7 +37,6 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     final authStore = Provider.of<AuthStore>(context);
-    final messageStore = Provider.of<MessageStore>(context);
 
     return Observer(
       builder: (_) => Form(
@@ -48,53 +46,48 @@ class _LoginFormState extends State<LoginForm> {
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
-                }
-                if (!value.contains('@')) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
+              validator: (value) => EzValidator<String>()
+                  .required(
+                    "Email không được để trống",
+                  )
+                  .email(
+                    "Email không hợp lệ",
+                  )
+                  .build()(value),
             ),
             TextFormField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                if (value.length < 6) {
-                  return 'Password must be at least 6 characters long';
-                }
-                return null;
-              },
+              validator: (value) => EzValidator<String>()
+                  .required(
+                    "Mật khẩu không được để trống",
+                  )
+                  .minLength(8, "Mật khẩu phải có ít nhất 8 ký tự")
+                  .matches(
+                      RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};:"\\|,.<>/?]).*$'),
+                      "Mật khẩu phải chứa ít nhất 1 ký tự hoa, 1 ký tự thường, 1 số và 1 ký tự đặc biệt")
+                  .build()(value),
             ),
             SizedBox(height: 20),
-            AccentButton(
-              text: 'Login',
+            ElevatedButton(
+              child: (authStore.loginState.isLoading ||
+                      authStore.loginState.isRefreshing)
+                  ? CircularProgressIndicator()
+                  : Text('Login'),
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  await authStore.login(
-                    _emailController.text,
-                    _passwordController.text,
+                  LoginInput loginInput = LoginInput(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    deviceId: authStore.deviceId!,
                   );
-                  print('User: ${authStore.user}');
+                  await authStore.login(loginInput);
+                  print(authStore);
                 }
               },
             ),
-            // if (authStore.isLoading) CircularProgressIndicator(),
-            // if (messageStore.latestMessage != null)
-            //   Text(
-            //     messageStore.latestMessage!.message,
-            //     style: TextStyle(
-            //       color: messageStore.latestMessage!.type == MessageType.error
-            //           ? Colors.red
-            //           : Colors.green,
-            //     ),
-            //   ),
           ],
         ),
       ),

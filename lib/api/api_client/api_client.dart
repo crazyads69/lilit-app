@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
 import 'package:lilit/models/api_response/api_response.dart';
-import "package:lilit/models/refresh_token/refresh_token.dart";
+import 'package:lilit/models/refresh_token/refresh_token.dart';
+import 'package:lilit/stores/message_store/message_store.dart';
 
 class ApiClient {
   final Dio _dio;
   final ObservableMap<String, dynamic> _cache =
       ObservableMap<String, dynamic>();
+  late final MessageStore _messageStore;
 
   final Observable<bool> isLoading = Observable(false);
   final Observable<bool> isRefreshing = Observable(false);
@@ -21,7 +23,9 @@ class ApiClient {
     required String Function() getRefreshToken,
     required Future<void> Function(RefreshToken) setNewToken,
     required void Function() logOut,
+    required MessageStore messageStore,
   }) {
+    _messageStore = messageStore;
     _dio.options.baseUrl = baseUrl;
     if (headers != null) {
       _dio.options.headers.addAll(headers);
@@ -79,10 +83,18 @@ class ApiClient {
         },
       ),
     );
+
+    print('Raw Refresh Token Response: ${response.data}');
+
     final apiResponse = ApiResponse<RefreshToken>.fromJson(
       response.data,
       (json) => RefreshToken.fromJson(json as Map<String, dynamic>),
     );
+
+    if (apiResponse.data == null) {
+      throw Exception('Failed to refresh token: ${apiResponse.message}');
+    }
+
     return apiResponse.data;
   }
 
@@ -101,7 +113,14 @@ class ApiClient {
         return cachedValue as T;
       }
     }
-    return _fetchAndCache<T>(url, params, cacheKey, cacheDuration, parser);
+    try {
+      return await _fetchAndCache<T>(
+          url, params, cacheKey, cacheDuration, parser);
+    } catch (e) {
+      print('Error in fetch: $e');
+      _handleError(e, 'An error occurred while fetching data');
+      rethrow;
+    }
   }
 
   Future<T> _fetchAndCache<T>(
@@ -119,13 +138,15 @@ class ApiClient {
     }
     try {
       final response = await _dio.get(url, queryParameters: params);
-      final apiResponse = ApiResponse<dynamic>.fromJson(
-        response.data,
-        (json) => json,
-      );
 
-      final data =
-          parser != null ? parser(apiResponse.data) : apiResponse.data as T;
+      print('Raw API Response: ${response.data}');
+
+      T data;
+      if (parser != null) {
+        data = parser(response.data);
+      } else {
+        data = response.data as T;
+      }
 
       _cache[cacheKey] = Observable(data);
       Future.delayed(cacheDuration, () => _cache.remove(cacheKey));
@@ -184,12 +205,17 @@ class ApiClient {
           throw Exception('Unsupported HTTP method');
       }
 
-      final apiResponse = ApiResponse<dynamic>.fromJson(
-        response.data,
-        (json) => json,
-      );
+      print('Raw API Response: ${response.data}');
 
-      return parser != null ? parser(apiResponse.data) : apiResponse.data as T;
+      if (parser != null) {
+        return parser(response.data);
+      } else {
+        return response.data as T;
+      }
+    } catch (e) {
+      print('Error in mutate: $e');
+      _handleError(e, 'An error occurred while performing the operation');
+      rethrow;
     } finally {
       isLoading.value = false;
     }
@@ -198,5 +224,25 @@ class ApiClient {
   void invalidateCache(String url, {Map<String, dynamic>? params}) {
     final cacheKey = '$url${params?.toString() ?? ''}';
     _cache.remove(cacheKey);
+  }
+
+  void _handleError(dynamic e, String defaultMessage) {
+    if (e is DioException) {
+      final response = e.response;
+      if (response != null) {
+        final data = response.data;
+        if (data is Map<String, dynamic> && data.containsKey('message_vi')) {
+          _messageStore.showMessage(MessageType.error, data['message_vi']);
+        } else {
+          _messageStore.showMessage(MessageType.error, defaultMessage);
+        }
+      } else {
+        _messageStore.showMessage(
+            MessageType.error, e.message ?? defaultMessage);
+      }
+    } else {
+      _messageStore.showMessage(
+          MessageType.error, 'An unexpected error occurred');
+    }
   }
 }
