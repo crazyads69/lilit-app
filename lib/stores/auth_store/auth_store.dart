@@ -27,7 +27,7 @@ abstract class _AuthStore with Store {
 
   _AuthStore(this._authApi, this._deviceIdGenerator, this._secureStorage,
       this._messageStore) {
-    _initializeDeviceId();
+    _initialize();
   }
 
   @observable
@@ -41,6 +41,9 @@ abstract class _AuthStore with Store {
 
   @observable
   String? refreshToken;
+
+  @observable
+  bool isInitialized = false;
 
   @computed
   @computed
@@ -96,9 +99,10 @@ abstract class _AuthStore with Store {
   }
 
   @action
-  Future<void> _initializeDeviceId() async {
+  Future<void> _initialize() async {
     deviceId = await _deviceIdGenerator.generateDeviceId();
     accessToken = await _secureStorage.read(key: _accessTokenKey);
     refreshToken = await _secureStorage.read(key: _refreshTokenKey);
+    isInitialized = true;
   }
 }

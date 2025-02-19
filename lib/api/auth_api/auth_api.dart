@@ -1,6 +1,4 @@
-import 'package:get_it/get_it.dart';
 import 'package:lilit/api/api_client/api_client.dart';
-import 'package:lilit/api/api_service/api_service.dart';
 import 'package:lilit/api/api_state/api_state.dart';
 import 'package:lilit/models/api_response/api_response.dart';
 import 'package:lilit/models/login_response/login_response.dart';

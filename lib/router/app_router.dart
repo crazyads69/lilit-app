@@ -11,9 +11,6 @@ class AppRouter extends RootStackRouter {
   @override
   final navigatorKey = GlobalKey<NavigatorState>();
 
-  @override
-  RouteType get defaultRouteType => RouteType.adaptive();
-
   final AuthStore authStore;
 
   AppRouter(this.authStore);
@@ -26,9 +23,6 @@ class AppRouter extends RootStackRouter {
           guards: [AuthGuard(authStore)],
         ),
       ];
-
-  @override
-  List<AutoRouteGuard> get guards => [AuthGuard(authStore)];
 }
 
 class AuthGuard extends AutoRouteGuard {

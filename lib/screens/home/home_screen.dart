@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:lilit/di/service_locator.dart';
 import 'package:lilit/stores/auth_store/auth_store.dart';
-import 'package:provider/provider.dart';
 
 @RoutePage()
 class HomeScreen extends StatelessWidget {
@@ -9,7 +9,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authStore = Provider.of<AuthStore>(context);
+    final authStore = getIt<AuthStore>();
 
     return Scaffold(
       appBar: AppBar(

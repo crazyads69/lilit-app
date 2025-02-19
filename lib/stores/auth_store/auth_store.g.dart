@@ -97,6 +97,22 @@ mixin _$AuthStore on _AuthStore, Store {
     });
   }
 
+  late final _$isInitializedAtom =
+      Atom(name: '_AuthStore.isInitialized', context: context);
+
+  @override
+  bool get isInitialized {
+    _$isInitializedAtom.reportRead();
+    return super.isInitialized;
+  }
+
+  @override
+  set isInitialized(bool value) {
+    _$isInitializedAtom.reportWrite(value, super.isInitialized, () {
+      super.isInitialized = value;
+    });
+  }
+
   late final _$setNewTokenAsyncAction =
       AsyncAction('_AuthStore.setNewToken', context: context);
 
@@ -121,13 +137,12 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$logOutAsyncAction.run(() => super.logOut());
   }
 
-  late final _$_initializeDeviceIdAsyncAction =
-      AsyncAction('_AuthStore._initializeDeviceId', context: context);
+  late final _$_initializeAsyncAction =
+      AsyncAction('_AuthStore._initialize', context: context);
 
   @override
-  Future<void> _initializeDeviceId() {
-    return _$_initializeDeviceIdAsyncAction
-        .run(() => super._initializeDeviceId());
+  Future<void> _initialize() {
+    return _$_initializeAsyncAction.run(() => super._initialize());
   }
 
   @override
@@ -137,6 +152,7 @@ deviceId: ${deviceId},
 user: ${user},
 accessToken: ${accessToken},
 refreshToken: ${refreshToken},
+isInitialized: ${isInitialized},
 isAuthenticated: ${isAuthenticated},
 loginState: ${loginState},
 registerState: ${registerState}

@@ -2,10 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:lilit/di/service_locator.dart';
 import 'package:lilit/router/app_router.dart';
 import 'package:lilit/schemas/auth_input/auth_input.dart';
 import 'package:lilit/stores/auth_store/auth_store.dart';
-import 'package:provider/provider.dart';
 
 @RoutePage()
 class LoginScreen extends StatelessWidget {
@@ -37,7 +37,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    final authStore = Provider.of<AuthStore>(context);
+    final authStore = getIt<AuthStore>();
 
     return Observer(
       builder: (_) => Form(
