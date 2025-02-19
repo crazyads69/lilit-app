@@ -9,6 +9,13 @@ part of 'auth_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AuthStore on _AuthStore, Store {
+  Computed<bool>? _$isAuthenticatedComputed;
+
+  @override
+  bool get isAuthenticated =>
+      (_$isAuthenticatedComputed ??= Computed<bool>(() => super.isAuthenticated,
+              name: '_AuthStore.isAuthenticated'))
+          .value;
   Computed<ApiState<ApiResponse<LoginResponse>>>? _$loginStateComputed;
 
   @override
@@ -130,6 +137,7 @@ deviceId: ${deviceId},
 user: ${user},
 accessToken: ${accessToken},
 refreshToken: ${refreshToken},
+isAuthenticated: ${isAuthenticated},
 loginState: ${loginState},
 registerState: ${registerState}
     ''';

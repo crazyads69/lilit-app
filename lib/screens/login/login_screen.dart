@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:lilit/router/app_router.dart';
 import 'package:lilit/schemas/auth_input/auth_input.dart';
 import 'package:lilit/stores/auth_store/auth_store.dart';
 import 'package:provider/provider.dart';
@@ -83,8 +84,11 @@ class _LoginFormState extends State<LoginForm> {
                     password: _passwordController.text,
                     deviceId: authStore.deviceId!,
                   );
+                  // In your login method within LoginScreen
                   await authStore.login(loginInput);
-                  print(authStore);
+                  if (authStore.isAuthenticated) {
+                    context.router.replace(HomeRoute());
+                  }
                 }
               },
             ),

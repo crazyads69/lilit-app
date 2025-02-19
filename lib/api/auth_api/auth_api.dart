@@ -35,6 +35,6 @@ class AuthApi {
   Future<void> logout() => logoutState.run(
         '/v1/auth/logout',
         method: 'POST',
-        parser: (data) => ApiResponse<void>.fromJson(data, (_) => null),
+        parser: (data) => ApiResponse<void>.fromJson(data, (_) {}),
       );
 }

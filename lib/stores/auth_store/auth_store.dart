@@ -1,10 +1,13 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lilit/api/api_state/api_state.dart';
 import 'package:lilit/api/auth_api/auth_api.dart';
+import 'package:lilit/di/service_locator.dart';
 import 'package:lilit/models/api_response/api_response.dart';
 import 'package:lilit/models/auth_data/auth_data.dart';
 import 'package:lilit/models/login_response/login_response.dart';
 import 'package:lilit/models/refresh_token/refresh_token.dart';
+import 'package:lilit/router/app_router.dart';
 import 'package:lilit/schemas/auth_input/auth_input.dart';
 import 'package:lilit/utils/device_id/device_id.dart';
 import 'package:lilit/stores/message_store/message_store.dart';
@@ -40,6 +43,10 @@ abstract class _AuthStore with Store {
   String? refreshToken;
 
   @computed
+  @computed
+  bool get isAuthenticated => refreshToken != null && refreshToken!.isNotEmpty;
+
+  @computed
   ApiState<ApiResponse<LoginResponse>> get loginState => _authApi.loginState;
 
   @computed
@@ -58,17 +65,15 @@ abstract class _AuthStore with Store {
   @action
   Future<void> login(LoginInput input) async {
     final response = await _authApi.login(input);
-    if (response.data != null) {
-      user = response.data.user;
-      accessToken = response.data.accessToken;
-      refreshToken = response.data.refreshToken;
+    user = response.data.user;
+    accessToken = response.data.accessToken;
+    refreshToken = response.data.refreshToken;
 
-      await _secureStorage.write(key: _accessTokenKey, value: accessToken);
-      await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
+    await _secureStorage.write(key: _accessTokenKey, value: accessToken);
+    await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
 
-      _messageStore.showMessage(MessageType.success, response.messageVi,
-          description: response.message);
-    }
+    _messageStore.showMessage(MessageType.success, response.messageVi,
+        description: response.message);
   }
 
   @action
@@ -84,6 +89,10 @@ abstract class _AuthStore with Store {
 
     _messageStore.showMessage(MessageType.success, 'Đăng xuất thành công',
         description: "Bạn đã đăng xuất thành công");
+
+    // Redirect to login page
+    AutoRouter.of(getIt<AppRouter>().navigatorKey.currentContext!)
+        .replace(LoginRoute());
   }
 
   @action

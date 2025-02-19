@@ -6,6 +6,7 @@ import "package:dio/dio.dart";
 import "package:lilit/api/api_client/api_client.dart";
 import "package:lilit/api/api_service/api_service.dart";
 import "package:lilit/api/auth_api/auth_api.dart";
+import "package:lilit/router/app_router.dart";
 import "package:lilit/stores/auth_store/auth_store.dart";
 import "package:lilit/stores/message_store/message_store.dart";
 import "package:lilit/utils/device_id/device_id.dart";
@@ -53,6 +54,8 @@ void setupServiceLocator() {
         getIt<FlutterSecureStorage>(),
         getIt<MessageStore>(),
       ));
+
+  getIt.registerLazySingleton<AppRouter>(() => AppRouter(getIt<AuthStore>()));
 
   // Initialize ApiService
   getIt<ApiService>().initialize(

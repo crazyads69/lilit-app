@@ -91,10 +91,6 @@ class ApiClient {
       (json) => RefreshToken.fromJson(json as Map<String, dynamic>),
     );
 
-    if (apiResponse.data == null) {
-      throw Exception('Failed to refresh token: ${apiResponse.message}');
-    }
-
     return apiResponse.data;
   }
 

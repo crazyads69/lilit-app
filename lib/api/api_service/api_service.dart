@@ -1,12 +1,9 @@
 // lib/services/api_service.dart
 
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lilit/api/api_client/api_client.dart';
 import 'package:lilit/models/refresh_token/refresh_token.dart';
 import 'package:lilit/stores/message_store/message_store.dart';
-import 'package:mobx/mobx.dart';
-import 'package:lilit/stores/auth_store/auth_store.dart';
 
 // class ApiService {
 //   late final ApiClient client;
